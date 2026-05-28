@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Fantasy Escape Room: Snakes &amp; Ladders</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="intro-screen" class="overlay-screen active">
+        <div class="glass-panel text-center">
+            <h1 class="glow-text-white">MAGICAL ESCAPE ROOM</h1>
+            <h2 class="glow-text-gold">With a Twist!</h2>
+            <p class="instruction-text">Answer questions correctly to cast spells, spin the cosmic dice, and escape the enchanted chambers before the opposing team!</p>
+            
+            <div class="brand-link-wrapper">
+                <a href="https://teacherkhenlearninghub.blogspot.com/" target="_blank" class="hub-anchor-btn">
+                    <span class="star-icon">⭐</span> Visit Teacher Khen Learning Hub
+                </a>
+            </div>
+
+            <div class="button-group" style="margin-top: 25px;">
+                <button onclick="ui.showPanel('settings-panel')" class="btn primary-btn">Game Configurations</button>
+                <button onclick="gameEngine.startQuickGame()" class="btn success-btn">Quick Start Game</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-panel" class="overlay-screen hidden">
+        <div class="glass-panel wide-panel">
+            <h2 class="section-title">🔮 Citadel Controls &amp; Question Matrix</h2>
+            <hr class="divider">
+            
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h3>Board Matrix</h3>
+                    <label>Grid Matrix Size:</label>
+                    <select id="setting-board-size">
+                        <option value="40">40 Chambers</option>
+                        <option value="80">80 Chambers</option>
+                        <option value="100" selected>100 Chambers</option>
+                    </select>
+
+                    <label>Snakes Count:</label>
+                    <input type="number" id="setting-snakes" value="6" min="2" max="15">
+
+                    <label>Ladders Count:</label>
+                    <input type="number" id="setting-ladders" value="6" min="2" max="15">
+                    
+                    <label>Question Sync Matrix:</label>
+                    <div class="toggle-container">
+                        <input type="checkbox" id="setting-sync-questions" checked>
+                        <span class="slider-label">Sync Questions Across Teams</span>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Data Matrix Archives</h3>
+                    <p>Export or Import your complete system architecture, question banks, and map layouts here.</p>
+                    <button onclick="storage.saveToLocalStorage()" class="btn block-btn info-btn">Save Current Session</button>
+                    <button onclick="storage.exportJSON()" class="btn block-btn primary-btn">Export Data Archive (.JSON)</button>
+                    <button onclick="document.getElementById('file-input').click()" class="btn block-btn warning-btn">Load Data Archive</button>
+                    <input type="file" id="file-input" style="display:none" onchange="storage.importJSON(event)">
+                </div>
+            </div>
+
+            <div class="qms-container">
+                <h3>📜 Question Bank Architect</h3>
+                <div class="qms-form">
+                    <select id="qms-type" onchange="ui.onQmsTypeChange()">
+                        <option value="multiple-choice">Multiple Choice</option>
+                        <option value="spelling">Spelling Challenge</option>
+                        <option value="complete-sentence">Complete Sentence</option>
+                    </select>
+                    <input type="text" id="qms-question-text" placeholder="Enter Question Prompt or Base Text Here...">
+                    
+                    <div id="qms-media-dropzone" class="dropzone">
+                        <span>📋 Click here &amp; Paste Image (Ctrl+V) to link media asset</span>
+                        <img id="qms-preview-img" class="hidden" alt="Preview">
+                    </div>
+
+                    <div id="qms-options-wrapper"></div>
+
+                    <button onclick="qms.addQuestionFromUI()" class="btn success-btn">Inject Question Into Matrix</button>
+                </div>
+
+                <div class="qms-list-wrapper">
+                    <table id="qms-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Prompt</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="qms-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="center-action">
+                <button onclick="gameEngine.initiateGameFromSettings()" class="btn execution-btn">✨ Generate Arena &amp; Begin</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="audio-widget">
+        <button id="audio-toggle-btn" onclick="audioSystem.toggleMusic()" class="audio-btn">🎵 Music: OFF</button>
+        <div class="slider-pack">
+            <label>Vol: </label>
+            <input type="range" id="audio-volume" min="0" max="1" step="0.1" value="0.5" oninput="audioSystem.setVolume(this.value)">
+        </div>
+    </div>
+
+    <div id="gameplay-hud" class="hud-layer hidden">
+        
+        <div id="team-1-panel" class="team-card faction-vortex">
+            <div class="faction-header">
+                <div class="status-indicator"></div>
+                <h2>🌀 Team A: Cyclone Wind</h2>
+            </div>
+            <div class="score-tracking">Chamber Position: <span id="t1-position-hud">1</span></div>
+            
+            <div id="t1-interaction-box" class="interaction-box">
+                <p>Awaiting game initiation sequence...</p>
+            </div>
+        </div>
+
+        <div id="canvas-3d-container"></div>
+
+        <div id="team-2-panel" class="team-card faction-blaze">
+            <div class="faction-header">
+                <div class="status-indicator"></div>
+                <h2>🔥 Team B: Solar Blaze Fire</h2>
+            </div>
+            <div class="score-tracking">Chamber Position: <span id="t2-position-hud">1</span></div>
+            
+            <div id="t2-interaction-box" class="interaction-box">
+                <p>Awaiting game initiation sequence...</p>
+            </div>
+        </div>
+
+        <div class="top-branding-bar">
+            <a href="https://teacherkhenlearninghub.blogspot.com/" target="_blank" class="mini-hub-link">⭐ Teacher Khen Learning Hub</a>
+        </div>
+    </div>
+
+    <div id="winner-modal" class="overlay-screen hidden">
+        <div class="glass-panel victory-card">
+            <h1 id="victory-title" class="pulse-glow">VICTORY ACHIEVED!</h1>
+            <p id="victory-declaration"></p>
+            <button onclick="window.location.reload()" class="btn execution-btn">Return to Citadel</button>
+        </div>
+    </div>
+
+    <audio id="native-bg-audio" loop src="background music.mp3" preload="auto"></audio>
+
+    <script src="game.js"></script>
+</body>
+</html>
