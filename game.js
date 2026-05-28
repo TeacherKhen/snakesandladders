@@ -1,5 +1,5 @@
 /**
- * 3D Escape Room Board Game Engine - Absolute GitHub Compatibility Edition
+ * 3D Escape Room Board Game Engine - Alpha Masked Graphic Asset Edition
  * Core Modules: ThreeJS Animated Sprite Engine, Canvas Tile Painter, Image Link Plane Builder, UI Interaction Fix
  */
 
@@ -196,15 +196,15 @@ class ThreeEngine {
             this.scene.add(tileMesh);
         }
 
-        // --- HIGH-COMPATIBILITY RELATIVE ROUTING ASSETS ---
+        // --- HIGH-COMPATIBILITY NATIVE FILENAME ROUTING ---
         const texLoader = new THREE.TextureLoader();
 
-        const ladderTexture = texLoader.load('./{BBE095B2-BA0B-42A0-AB30-DBDCA43A69C5}.png', () => {
+        const ladderTexture = texLoader.load('./ladder.png', () => {
             ladderTexture.needsUpdate = true;
             if(this.renderer) this.renderer.render(this.scene, this.camera);
         });
 
-        const snakeTexture = texLoader.load('./{EC4FEE0A-6A94-4B3E-ABC7-BFA1DDB24BD5}.jpg', () => {
+        const snakeTexture = texLoader.load('./snake.png', () => {
             snakeTexture.needsUpdate = true;
             if(this.renderer) this.renderer.render(this.scene, this.camera);
         });
@@ -215,7 +215,7 @@ class ThreeEngine {
         snakeTexture.wrapT = THREE.RepeatWrapping;
 
         Object.keys(matrixMap.ladders).forEach(start => {
-            this.drawImageLinkPlane(matrixMap.cellPositions[start], matrixMap.cellPositions[matrixMap.ladders[start]], ladderTexture, 1.8, 0.35, 0xffd700);
+            this.drawImageLinkPlane(matrixMap.cellPositions[start], matrixMap.cellPositions[matrixMap.ladders[start]], ladderTexture, 2.0, 0.35, 0xffd700);
         });
         Object.keys(matrixMap.snakes).forEach(start => {
             this.drawImageLinkPlane(matrixMap.cellPositions[start], matrixMap.cellPositions[matrixMap.snakes[start]], snakeTexture, 2.2, 0.45, 0xff3333);
@@ -228,17 +228,18 @@ class ThreeEngine {
         const distance = startPos.distanceTo(endPos);
         const planeGeo = new THREE.PlaneGeometry(planeWidth, distance);
         
+        // TRANSPARENT MASKING STRATEGY FOR CUSTOM USER ARTWORK
         const planeMat = new THREE.MeshStandardMaterial({
             map: texture,
-            color: 0xffffff,
             transparent: true,
-            alphaTest: 0.05,
-            side: THREE.DoubleSide
+            alphaTest: 0.3, // Dynamically strips off pure white backgrounds from non-masked PNG files
+            side: THREE.DoubleSide,
+            roughness: 0.4
         });
 
         try {
             const clonedTex = texture.clone();
-            clonedTex.repeat.set(1, Math.max(1, Math.floor(distance / 4)));
+            clonedTex.repeat.set(1, Math.max(1, Math.floor(distance / 5.5)));
             clonedTex.needsUpdate = true;
             planeMat.map = clonedTex;
         } catch(e) {
