@@ -1,5 +1,5 @@
 /**
- * 3D Escape Room Board Game Engine - Fully Synchronized Asset Edition
+ * 3D Escape Room Board Game Engine - Absolute GitHub Compatibility Edition
  * Core Modules: ThreeJS Animated Sprite Engine, Canvas Tile Painter, Image Link Plane Builder, UI Interaction Fix
  */
 
@@ -118,8 +118,8 @@ class ThreeEngine {
         this.scene.add(directionalLight);
 
         const texLoader = new THREE.TextureLoader();
-        this.textures.cyclone = texLoader.load('cyclone.gif');
-        this.textures.fire = texLoader.load('fire.gif');
+        this.textures.cyclone = texLoader.load('./cyclone.gif');
+        this.textures.fire = texLoader.load('./fire.gif');
 
         this.buildBoardGeometry();
         this.generateAssetTokens();
@@ -196,10 +196,18 @@ class ThreeEngine {
             this.scene.add(tileMesh);
         }
 
-        // --- MATCHED TO EXPLICIT USER UPLOAD FILENAMES ---
+        // --- HIGH-COMPATIBILITY RELATIVE ROUTING ASSETS ---
         const texLoader = new THREE.TextureLoader();
-        const ladderTexture = texLoader.load('ladder.png', () => { if(this.renderer) this.renderer.render(this.scene, this.camera); });
-        const snakeTexture = texLoader.load('snake.png', () => { if(this.renderer) this.renderer.render(this.scene, this.camera); });
+
+        const ladderTexture = texLoader.load('./{BBE095B2-BA0B-42A0-AB30-DBDCA43A69C5}.png', () => {
+            ladderTexture.needsUpdate = true;
+            if(this.renderer) this.renderer.render(this.scene, this.camera);
+        });
+
+        const snakeTexture = texLoader.load('./{EC4FEE0A-6A94-4B3E-ABC7-BFA1DDB24BD5}.jpg', () => {
+            snakeTexture.needsUpdate = true;
+            if(this.renderer) this.renderer.render(this.scene, this.camera);
+        });
 
         ladderTexture.wrapS = THREE.RepeatWrapping;
         ladderTexture.wrapT = THREE.RepeatWrapping;
@@ -207,10 +215,10 @@ class ThreeEngine {
         snakeTexture.wrapT = THREE.RepeatWrapping;
 
         Object.keys(matrixMap.ladders).forEach(start => {
-            this.drawImageLinkPlane(matrixMap.cellPositions[start], matrixMap.cellPositions[matrixMap.ladders[start]], ladderTexture, 1.8, 0.3, 0xffd700);
+            this.drawImageLinkPlane(matrixMap.cellPositions[start], matrixMap.cellPositions[matrixMap.ladders[start]], ladderTexture, 1.8, 0.35, 0xffd700);
         });
         Object.keys(matrixMap.snakes).forEach(start => {
-            this.drawImageLinkPlane(matrixMap.cellPositions[start], matrixMap.cellPositions[matrixMap.snakes[start]], snakeTexture, 2.2, 0.4, 0xff3333);
+            this.drawImageLinkPlane(matrixMap.cellPositions[start], matrixMap.cellPositions[matrixMap.snakes[start]], snakeTexture, 2.2, 0.45, 0xff3333);
         });
     }
 
@@ -799,7 +807,7 @@ class UIManager {
 const ui = new UIManager();
 
 
-// --- CRITICAL CLICK REGISTRATION FIX ---
+// --- CRITICAL CLICK REGISTRATION ---
 window.addEventListener("DOMContentLoaded", () => {
     qms.init();
     
